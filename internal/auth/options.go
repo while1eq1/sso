@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,7 +13,6 @@ import (
 	"github.com/buzzfeed/sso/internal/auth/providers"
 	"github.com/buzzfeed/sso/internal/pkg/groups"
 	log "github.com/buzzfeed/sso/internal/pkg/logging"
-	"github.com/buzzfeed/sso/internal/pkg/sessions"
 )
 
 // Options are config options that can be set by environment variables
@@ -107,6 +107,7 @@ type Options struct {
 	// internal values that are set after config validation
 	redirectURL         *url.URL
 	provider            providers.Provider
+	decodedCookieSecret string
 	GroupsCacheStopFunc func()
 }
 
@@ -171,26 +172,14 @@ func (o *Options) Validate() error {
 
 	msgs = parseProviderInfo(o, msgs)
 
-	validCookieSecretSize := false
-	for _, i := range []int{32, 64} {
-		if len(sessions.SecretBytes(o.CookieSecret)) == i {
-			validCookieSecretSize = true
-		}
+	decodedCookieSecret, err := base64.StdEncoding.DecodeString(o.CookieSecret)
+	if err != nil {
+		msgs = append(msgs, "invalid cookie secret")
 	}
-	var decoded bool
-	if string(sessions.SecretBytes(o.CookieSecret)) != o.CookieSecret {
-		decoded = true
+	if len(decodedCookieSecret) != 32 {
+		msgs = append(msgs, fmt.Sprintf("invalid cookie secret size, must be 32 bytes, but was %d bytes", len(decodedCookieSecret)))
 	}
-	if validCookieSecretSize == false {
-		var suffix string
-		if decoded {
-			suffix = fmt.Sprintf(" note: cookie secret was base64 decoded from %q", o.CookieSecret)
-		}
-		msgs = append(msgs, fmt.Sprintf(
-			"cookie_secret must be 32 or 64 bytes "+
-				"to create an AES cipher but is %d bytes.%s",
-			len(sessions.SecretBytes(o.CookieSecret)), suffix))
-	}
+	o.decodedCookieSecret = decodedCookieSecret
 
 	if o.CookieRefresh >= o.CookieExpire {
 		msgs = append(msgs, fmt.Sprintf(

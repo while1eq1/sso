@@ -67,7 +67,11 @@ func addPadding(secret string) string {
 func CreateMiscreantCookieCipher(cookieSecret string) func(s *CookieStore) error {
 	return func(s *CookieStore) error {
 		s.CookieSecret = cookieSecret
-		cipher, err := aead.NewMiscreantCipher(SecretBytes(s.CookieSecret))
+		decodedCookieSecret, err := base64.StdEncoding.DecodeString(s.CookieSecret)
+		if err != nil {
+			return err
+		}
+		cipher, err := aead.NewMiscreantCipher(decodedCookieSecret)
 		if err != nil {
 			return fmt.Errorf("miscreant cookie-secret error: %s", err.Error())
 		}

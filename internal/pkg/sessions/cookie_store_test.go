@@ -1,7 +1,6 @@
 package sessions
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,7 +10,7 @@ import (
 	"github.com/buzzfeed/sso/internal/pkg/testutil"
 )
 
-var testEncodedCookieSecret = base64.URLEncoding.EncodeToString([]byte("574b776a7c934d6b9fc42ec63a389f79"))
+var testEncodedCookieSecret = "qICChm3wdjbjcWymm7PefwtPP6/PZv+udkFEubTeE38="
 
 func TestCreateMiscreantCookieCipher(t *testing.T) {
 	testCases := []struct {
