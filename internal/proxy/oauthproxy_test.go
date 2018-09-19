@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"crypto"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,12 +19,11 @@ import (
 	"time"
 
 	"github.com/18F/hmacauth"
-	"github.com/buzzfeed/sso/internal/pkg/aead"
 	"github.com/buzzfeed/sso/internal/pkg/testutil"
 	"github.com/buzzfeed/sso/internal/proxy/providers"
 )
 
-var testEncodedCookieSecret = base64.RawURLEncoding.EncodeToString(aead.GenerateKey())
+var testEncodedCookieSecret = "tJgzIEug8M/6Asjn5mvpWxxef5d5duU7BwpuD0GCHRI="
 
 func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)

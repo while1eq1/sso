@@ -46,7 +46,7 @@ func TestNewOptions(t *testing.T) {
 		"missing setting: proxy-client-id",
 		"missing setting: proxy-client-secret",
 		"missing setting: required-host-header",
-		"invalid cookie secret size, must be 32 bytes, but was 0 bytes",
+		"invalid cookie secret length, must be 32 or 64 bytes but was 0 bytes",
 		"missing setting: no host specified for statsd metrics collections",
 		"missing setting: no port specified for statsd metrics collections",
 	})

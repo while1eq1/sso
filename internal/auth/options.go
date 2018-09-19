@@ -107,7 +107,7 @@ type Options struct {
 	// internal values that are set after config validation
 	redirectURL         *url.URL
 	provider            providers.Provider
-	decodedCookieSecret string
+	decodedCookieSecret []byte
 	GroupsCacheStopFunc func()
 }
 
@@ -174,11 +174,20 @@ func (o *Options) Validate() error {
 
 	decodedCookieSecret, err := base64.StdEncoding.DecodeString(o.CookieSecret)
 	if err != nil {
-		msgs = append(msgs, "invalid cookie secret")
+		msgs = append(msgs, "Invalid value for COOKIE_SECRET; expected base64-encoded bytes, as from `openssl rand 32 -base64`")
 	}
-	if len(decodedCookieSecret) != 32 {
-		msgs = append(msgs, fmt.Sprintf("invalid cookie secret size, must be 32 bytes, but was %d bytes", len(decodedCookieSecret)))
+
+	validCookieSecretLength := false
+	for _, i := range []int{32, 64} {
+		if len(decodedCookieSecret) == i {
+			validCookieSecretLength = true
+		}
 	}
+
+	if !validCookieSecretLength {
+		msgs = append(msgs, fmt.Sprintf("invalid cookie secret length, must be 32 or 64 bytes but was %d bytes", len(decodedCookieSecret)))
+	}
+
 	o.decodedCookieSecret = decodedCookieSecret
 
 	if o.CookieRefresh >= o.CookieExpire {

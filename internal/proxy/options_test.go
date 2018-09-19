@@ -51,7 +51,7 @@ func TestNewOptions(t *testing.T) {
 		"missing setting: client-secret",
 		"missing setting: statsd-host",
 		"missing setting: statsd-port",
-		"invalid cookie secret length, must be 32 bytes but was 0 bytes",
+		"invalid cookie secret length, must be 32 or 64 bytes but was 0 bytes",
 	})
 	testutil.Equal(t, expected, err.Error())
 }
